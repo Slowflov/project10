@@ -1,0 +1,178 @@
+openapi: 3.0.0
+info:
+  title: My API
+  version: 1.0.0
+  description: API documentation for user and transaction management.
+  contact:
+    name: Your Name
+    email: your.email@example.com
+
+servers:
+  - url: http://localhost:3001/api/v1
+
+paths:
+  /user/login:
+    post:
+      summary: Login
+      tags:
+        - User Module
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: User logged in successfully
+        '401':
+          description: Invalid credentials
+
+  /user/signup:
+    post:
+      summary: Signup
+      tags:
+        - User Module
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: User registered successfully
+
+  /user/profile:
+    get:
+      summary: Get user profile
+      tags:
+        - User Module
+      responses:
+        '200':
+          description: User profile retrieved successfully
+        '401':
+          description: Unauthorized
+
+    put:
+      summary: Update user profile
+      tags:
+        - User Module
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+      responses:
+        '200':
+          description: User profile updated successfully
+
+  /transactions:
+    get:
+      summary: Get all transactions
+      tags:
+        - Transaction Module
+      responses:
+        '200':
+          description: List of transactions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    account:
+                      type: string
+                    amount:
+                      type: number
+                      format: float
+                    date:
+                      type: string
+                      format: date
+        '401':
+          description: Unauthorized
+
+    post:
+      summary: Create a new transaction
+      tags:
+        - Transaction Module
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: string
+                amount:
+                  type: number
+                  format: float
+                date:
+                  type: string
+                  format: date
+      responses:
+        '201':
+          description: Transaction created successfully
+
+    put:
+      summary: Update an existing transaction
+      tags:
+        - Transaction Module
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                account:
+                  type: string
+                amount:
+                  type: number
+                  format: float
+                date:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Transaction updated successfully
+        '404':
+          description: Transaction not found
+
+    delete:
+      summary: Delete an existing transaction
+      tags:
+        - Transaction Module
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Transaction deleted successfully
+        '404':
+          description: Transaction not found
