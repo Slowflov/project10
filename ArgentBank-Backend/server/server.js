@@ -4,19 +4,16 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const yaml = require('yamljs');
 const swaggerDocs = yaml.load('./swagger.yaml');
-const dbConnection = require('./database/connection');
+const dbConnection = require('./database/connection'); // Подключаем модуль для подключения к базе данных
 
-// Загружаем переменные окружения
-require('dotenv').config();
-
-// Проверка значения переменной окружения DB_URI
-console.log('DB_URI:', process.env.DB_URI); // Для отладки
+// Не требуется загрузка переменных окружения, так как мы убрали использование DB_URI
+// require('dotenv').config();  // Удалено
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Подключение к базе данных
-dbConnection();
+dbConnection();  // Подключение к базе данных без использования DB_URI
 
 // Обработка проблем CORS
 app.use(cors());
@@ -26,8 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Обработка пользовательских маршрутов
-app.use('/api/v1/user', require('./routes/userRoutes'));
-app.use('/api/v1/transactions', require('./routes/transactionRoutes'));
+app.use('/api/v1/user', require('./routes/userRoutes')); // Оставляем маршруты для пользователя
 
 // API Документация
 if (process.env.NODE_ENV !== 'production') {
@@ -42,6 +38,7 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
 });
+
 
 
 

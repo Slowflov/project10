@@ -12,7 +12,6 @@ const UserProfile = () => {
   const navigate = useNavigate();
   const userInfo = useSelector((state) => state.user.userInfo);
   const [errorMessage, setErrorMessage] = useState(null); // Для хранения сообщений об ошибках
-  const [transactions, setTransactions] = useState([]); // Для хранения транзакций
 
   const fetchUserData = useCallback(async () => {
     try {
@@ -29,21 +28,6 @@ const UserProfile = () => {
     }
   }, [dispatch]);
 
-  const fetchTransactions = useCallback(async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/v1/transactions'); // Запрос на получение транзакций
-      if (response.ok) { 
-        const data = await response.json();
-        setTransactions(data); // Сохранение полученных транзакций
-      } else {
-        throw new Error('Received non-JSON response');
-      }
-    } catch (error) {
-      console.error('Error fetching transactions:', error);
-      setErrorMessage('Failed to fetch transactions. Please try again later.');
-    }
-  }, []);
-
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('userInfo'));
     if (!userData) {
@@ -51,8 +35,7 @@ const UserProfile = () => {
     } else {
       dispatch(login(userData));
     }
-    fetchTransactions(); // Запрос на получение транзакций при монтировании компонента
-  }, [dispatch, fetchUserData, fetchTransactions]);
+  }, [dispatch, fetchUserData]);
 
   return (
     <div>
@@ -109,18 +92,6 @@ const UserProfile = () => {
             <button className="transaction-button">View transactions</button>
           </div>
         </section>
-
-        {/* Отображение транзакций */}
-        <section className="transactions">
-          <h2>Your Transactions</h2>
-          <ul>
-            {transactions.map(transaction => (
-              <li key={transaction.id}>
-                {transaction.account}: {transaction.amount} on {transaction.date}
-              </li>
-            ))}
-          </ul>
-        </section>
       </main>
       <footer className="footer">
         <p className="footer-text">Copyright 2020 Argent Bank</p>
@@ -129,7 +100,8 @@ const UserProfile = () => {
   );
 };
 
-export default UserProfile; 
+export default UserProfile;
+
 
 
 
