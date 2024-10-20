@@ -1,41 +1,38 @@
+// UserProfile.js
 import React, { useEffect, useState, useCallback } from 'react'; 
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../redux/userSlice'; 
-import { useNavigate, Link } from 'react-router-dom'; 
+import { getUserInfo, logout } from '../redux/userSlice'; 
+import { useNavigate, Link } from 'react-router-dom';  
 import 'font-awesome/css/font-awesome.css';
 import '../css/main.css';
 import argentBankLogo from '../img/argentBankLogo.png';
-import UserInfo from '../redux/userInfo'; // Импортируем компонент UserInfo
+import UserInfo from '../redux/userInfo'; 
 
 const UserProfile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userInfo = useSelector((state) => state.user.userInfo);
-  const [errorMessage, setErrorMessage] = useState(null); // Для хранения сообщений об ошибках
+  const token = useSelector((state) => state.user.token); 
+  const [errorMessage, setErrorMessage] = useState(null); 
 
   const fetchUserData = useCallback(async () => {
+    if (!token) {
+      dispatch(logout()); 
+      return;
+    }
+
     try {
-      const response = await fetch('/api/v1/user'); 
-      if (response.ok) { 
-        const data = await response.json();
-        dispatch(login(data)); 
-      } else {
-        throw new Error('Received non-JSON response');
-      }
+      await dispatch(getUserInfo(token)).unwrap(); 
     } catch (error) {
       console.error('Error fetching user data:', error);
       setErrorMessage('Failed to fetch user data. Please try again later.');
+      dispatch(logout()); 
     }
-  }, [dispatch]);
+  }, [dispatch, token]);
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('userInfo'));
-    if (!userData) {
-      fetchUserData();
-    } else {
-      dispatch(login(userData));
-    }
-  }, [dispatch, fetchUserData]);
+    fetchUserData();
+  }, [fetchUserData]);
 
   return (
     <div>
@@ -49,7 +46,7 @@ const UserProfile = () => {
           <h1 className="sr-only">Argent Bank</h1>
         </button>
         <div>
-          <UserInfo /> {/* Используем компонент UserInfo для отображения информации о пользователе */}
+          <UserInfo /> 
         </div>
       </nav>
       <main className="main bg-dark">
@@ -67,7 +64,10 @@ const UserProfile = () => {
             <p className="account-amount-description">Available Balance</p>
           </div>
           <div className="account-content-wrapper cta">
-            <button className="transaction-button">View transactions</button>
+          <button className="transaction-button" onClick={() => navigate('/transactions')}>
+  View transactions
+</button>
+
           </div>
         </section>
 
@@ -78,7 +78,10 @@ const UserProfile = () => {
             <p className="account-amount-description">Available Balance</p>
           </div>
           <div className="account-content-wrapper cta">
-            <button className="transaction-button">View transactions</button>
+          <button className="transaction-button" onClick={() => navigate('/transactions')}>
+  View transactions
+</button>
+
           </div>
         </section>
 
@@ -89,7 +92,10 @@ const UserProfile = () => {
             <p className="account-amount-description">Current Balance</p>
           </div>
           <div className="account-content-wrapper cta">
-            <button className="transaction-button">View transactions</button>
+          <button className="transaction-button" onClick={() => navigate('/transactions')}>
+  View transactions
+</button>
+
           </div>
         </section>
       </main>
@@ -101,6 +107,12 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
+
+
+
+
+
+
 
 
 

@@ -2,6 +2,7 @@ const User = require('../database/models/userModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+// Регистрация пользователя
 module.exports.createUser = async (req, res) => {
   const serviceData = req.body;
   try {
@@ -27,6 +28,7 @@ module.exports.createUser = async (req, res) => {
   }
 };
 
+// Вход пользователя
 module.exports.loginUser = async (req, res) => {
   const serviceData = req.body;
   try {
@@ -48,13 +50,22 @@ module.exports.loginUser = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    res.status(200).json({ token });
+    // Возвращаем токен и информацию о пользователе
+    res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        userName: user.userName,
+      },
+    });
   } catch (error) {
     console.error('Error in userService.js', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
+// Получение профиля пользователя
 module.exports.getUserProfile = async (req, res) => {
   try {
     const jwtToken = req.headers.authorization.split('Bearer ')[1].trim();
@@ -65,6 +76,7 @@ module.exports.getUserProfile = async (req, res) => {
       return res.status(404).json({ message: 'User not found!' });
     }
 
+    // Возвращаем информацию о пользователе, исключая пароль
     res.status(200).json(user.toObject());
   } catch (error) {
     console.error('Error in userService.js', error);
@@ -72,6 +84,7 @@ module.exports.getUserProfile = async (req, res) => {
   }
 };
 
+// Обновление профиля пользователя
 module.exports.updateUserProfile = async (req, res) => {
   try {
     const jwtToken = req.headers.authorization.split('Bearer ')[1].trim();
@@ -88,10 +101,12 @@ module.exports.updateUserProfile = async (req, res) => {
       return res.status(404).json({ message: 'User not found!' });
     }
 
+    // Возвращаем обновленную информацию о пользователе
     res.status(200).json(user.toObject());
   } catch (error) {
     console.error('Error in userService.js', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 

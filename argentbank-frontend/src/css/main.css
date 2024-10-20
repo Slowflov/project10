@@ -330,3 +330,83 @@ body {
 .save-button {
   margin-right: 15px;
 }
+
+.readonly-input {
+  background-color: #b6b3b3f9;
+  color: #666;
+  border: 1px solid #ccc;
+  cursor: not-allowed;
+}
+
+
+/************ View Transactions ************/
+.gray-background {
+  background-color: #4a4646;
+  padding: 20px;
+  border-radius: 8px;
+  color: white;
+}
+
+.cta {
+  display: flex; /* Используем flexbox для выравнивания */
+  justify-content: flex-end; /* Выравниваем содержимое вправо */
+}
+
+.close-icon {
+  font-size: 130px;
+  padding-right: 10px;
+  padding-bottom: 31px;
+  color: white;
+  cursor: pointer;
+}
+
+.account {
+  width: 80%;
+  height: 150px;
+  overflow: hidden;
+}
+
+.transactions-content {
+  display: flex;
+  justify-content: center;
+}
+
+.transactions-table {
+  width: 80%;
+  border-collapse: collapse;
+  font-size: 1.2rem;
+}
+
+.transactions-table th,
+.transactions-table td {
+  padding: 15px;
+  text-align: center;
+}
+
+.transactions-table thead {
+  background-image: linear-gradient(to right, #7ec292, #004d00);
+}
+
+.transactions-table th {
+  color: white;
+  padding: 12px;
+}
+
+.transactions-table td {
+    padding: 12px;
+    background-color: white;
+}
+
+.transactions-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.vertical-text {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+td {
+  vertical-align: top;
+}

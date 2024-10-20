@@ -1,26 +1,43 @@
-import { configureStore } from '@reduxjs/toolkit';
-import userReducer from './userSlice';
-import transactionReducer from './transactionSlice'; // Импортируем slice для транзакций
+// redux/store.js
 
-// Функция для получения информации о пользователе из localStorage
-const getInitialUserState = () => {
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-  return {
-    userInfo: userInfo || null, // Если есть данные, используем их
-  };
+import { configureStore } from '@reduxjs/toolkit';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import userReducer from './userSlice'; // Убедитесь, что путь верный
+
+// Настройки для redux-persist
+const persistConfig = {
+  key: 'root',
+  storage,
 };
 
-// Создание Redux store с начальным состоянием
-const store = configureStore({
+const persistedReducer = persistReducer(persistConfig, userReducer);
+
+// Создаем Redux store
+export const store = configureStore({
   reducer: {
-    user: userReducer,
-    transactions: transactionReducer, // Добавляем новый редьюсер для транзакций
+    user: persistedReducer, // Используем редьюсер с persist
   },
-  preloadedState: {
-    user: getInitialUserState(), // Инициализация состояния пользователя
-  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false, // Отключаем проверку сериализуемости
+    }),
 });
 
-export default store;
+// Создаем persistor для сохранения состояния
+export const persistor = persistStore(store);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

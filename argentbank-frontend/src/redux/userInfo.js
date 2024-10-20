@@ -1,53 +1,32 @@
+// UserInfo.js
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setUserInfo, logout } from '../redux/userSlice';
+import { logout, getUserInfo } from '../redux/userSlice';
 import { Link, useNavigate } from 'react-router-dom';
 
 const UserInfo = () => {
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.user.userInfo);
+  const token = useSelector((state) => state.user.token); // Получаем токен из состояния
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem('token'); // Получаем токен
-      if (!token) {
-        return; // Если токен отсутствует, выходим из функции
-      }
-
-      try {
-        const response = await fetch('http://localhost:3001/api/v1/user/profile', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (response.status === 401) {
-          dispatch(logout()); // Выходим из системы, если токен недействителен
-          return; // Игнорируем ошибку 401
+    const fetchUserInfo = async () => {
+      if (token) {
+        try {
+          await dispatch(getUserInfo(token)).unwrap(); // Обработка успешного получения данных
+        } catch (error) {
+          console.error('Ошибка получения информации о пользователе:', error);
         }
-
-        if (!response.ok) {
-          throw new Error('Ошибка при получении данных пользователя');
-        }
-
-        const data = await response.json();
-        dispatch(setUserInfo(data));
-      } catch (error) {
-        console.error('Ошибка:', error); // Логируем ошибку
       }
     };
 
-    fetchUserData();
-  }, [dispatch]);
+    fetchUserInfo();
+  }, [dispatch, token]);
 
   const handleLogout = () => {
-    console.log("Sign out button clicked");
+    console.log("Кнопка выхода нажата");
     dispatch(logout());
-    localStorage.removeItem('token'); // Удаляем токен из localStorage
-    console.log("Token removed."); // Лог для отладки
     navigate('/sign-in'); // Перенаправляем на страницу входа
   };
 
@@ -60,7 +39,7 @@ const UserInfo = () => {
             {userInfo.userName || userInfo.email}
           </Link>
           <button onClick={handleLogout} className="main-nav-item">
-            <i className="fa fa-sign-out"></i>Sign Out
+            <i className="fa fa-sign-out"></i>Sign out
           </button>
         </>
       ) : (
@@ -73,6 +52,9 @@ const UserInfo = () => {
 };
 
 export default UserInfo;
+
+
+
 
 
 

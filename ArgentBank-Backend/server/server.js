@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const yaml = require('yamljs');
-const swaggerDocs = yaml.load('./swagger.yaml');
+const swaggerDocs = yaml.load('./swagger.yaml'); // Загрузка Swagger документа
 const dbConnection = require('./database/connection'); // Подключаем модуль для подключения к базе данных
 
 // Не требуется загрузка переменных окружения, так как мы убрали использование DB_URI
@@ -27,7 +27,7 @@ app.use('/api/v1/user', require('./routes/userRoutes')); // Оставляем �
 
 // API Документация
 if (process.env.NODE_ENV !== 'production') {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs)); // Настройка Swagger UI
 }
 
 app.get('/', (req, res) => {
@@ -38,6 +38,7 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
 });
+
 
 
 

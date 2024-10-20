@@ -1,63 +1,73 @@
+// userSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// Асинхронное действие для получения данных пользователя из API с использованием fetch
-export const fetchUserData = createAsyncThunk(
-  'user/fetchUserData',
-  async (userId, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`http://localhost:3001/api/v1/user/${userId}`);
-      if (!response.ok) {
-        throw new Error('Ошибка при получении данных');
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-// Асинхронное действие для обновления данных пользователя с использованием fetch
-export const updateUserProfile = createAsyncThunk(
-  'user/updateUserProfile',
-  async (userData, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`http://localhost:3001/api/v1/user/${userData.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-      if (!response.ok) {
-        throw new Error('Ошибка при обновлении данных');
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
 // Асинхронное действие для входа пользователя
-export const signIn = createAsyncThunk(
-  'user/signIn',
+export const loginAsync = createAsyncThunk(
+  'user/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/v1/user/login', {
-        method: 'POST',
+      const response = await fetch("http://localhost:3001/api/v1/user/login", {
+        method: "POST",
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(credentials),
       });
+
       if (!response.ok) {
         throw new Error('Ошибка при входе');
       }
+
       const data = await response.json();
-      localStorage.setItem('token', data.token); // Сохраняем токен в localStorage
-      return data;
+      console.log("Данные после успешного входа:", data);
+      return data; // Возвращаем данные от API (токен, данные пользователя)
+    } catch (error) {
+      console.error("Ошибка авторизации:", error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Асинхронное действие для получения информации о пользователе
+export const getUserInfo = createAsyncThunk(
+  'user/getUserInfo',
+  async (token, { rejectWithValue }) => {
+    try {
+      const response = await fetch("http://localhost:3001/api/v1/user/profile", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Ошибка при получении данных пользователя');
+      }
+      const userInfo = await response.json();
+      return userInfo;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Асинхронное действие для обновления имени пользователя
+export const updateUserName = createAsyncThunk(
+  'user/updateUserName',
+  async ({ token, newUserName }, { rejectWithValue }) => {
+    try {
+      const response = await fetch("http://localhost:3001/api/v1/user/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ userName: newUserName }),
+      });
+      if (!response.ok) {
+        throw new Error('Ошибка при обновлении имени пользователя');
+      }
+      return newUserName; // Возвращаем обновленное имя пользователя
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -68,69 +78,64 @@ const userSlice = createSlice({
   name: 'user',
   initialState: {
     userInfo: null,
+    token: null,
     status: 'idle',
     error: null,
   },
   reducers: {
-    login(state, action) {
-      state.userInfo = action.payload;
-    },
     logout(state) {
+      state.token = null; // Сбрасываем токен
       state.userInfo = null; // Сбрасываем информацию о пользователе
-      localStorage.removeItem('token'); // Удаляем токен из localStorage
-      localStorage.removeItem('userInfo'); // Удаляем информацию о пользователе из localStorage
+      state.status = 'idle'; // Сбрасываем статус
+      state.error = null; // Сбрасываем ошибку
     },
-    updateName(state, action) {
-      if (state.userInfo) {
-        state.userInfo.userName = action.payload.userName;
-        state.userInfo.firstName = action.payload.firstName;
-        state.userInfo.lastName = action.payload.lastName;
-      }
-    },
-    setUserInfo(state, action) {
-      state.userInfo = action.payload;
+    updateUserInfo(state, action) { // Новый редьюсер для обновления информации о пользователе
+      state.userInfo = { ...state.userInfo, ...action.payload };
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchUserData.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(fetchUserData.fulfilled, (state, action) => {
+      .addCase(loginAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.userInfo = action.payload;
+        state.token = action.payload.token; // Сохраняем токен
+        state.userInfo = action.payload.user; // Сохраняем информацию о пользователе
       })
-      .addCase(fetchUserData.rejected, (state, action) => {
+      .addCase(loginAsync.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload; // Сохраняем ошибку
       })
-      .addCase(updateUserProfile.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(updateUserProfile.fulfilled, (state, action) => {
+      .addCase(getUserInfo.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.userInfo = { ...state.userInfo, ...action.payload };
+        state.userInfo = action.payload; // Сохраняем информацию о пользователе
       })
-      .addCase(updateUserProfile.rejected, (state, action) => {
+      .addCase(getUserInfo.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload; // Сохраняем ошибку
       })
-      .addCase(signIn.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(signIn.fulfilled, (state, action) => {
+      .addCase(updateUserName.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.userInfo = action.payload;
+        if (state.userInfo) {
+          state.userInfo.userName = action.payload; // Обновляем имя пользователя
+          console.log('Текущий статус пользователя:', state);
+        }
       })
-      .addCase(signIn.rejected, (state, action) => {
+      .addCase(updateUserName.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload; // Сохраняем ошибку
       });
   },
 });
 
-export const { login, logout, updateName, setUserInfo } = userSlice.actions;
+// Экспортируем действия
+export const { logout, updateUserInfo } = userSlice.actions;
 export default userSlice.reducer;
+
+
+
+
+
+
+
 
 
 

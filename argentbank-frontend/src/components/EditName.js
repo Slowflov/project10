@@ -1,7 +1,8 @@
+// EditName.js
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { updateName, setUserInfo } from '../redux/userSlice';
+import { updateUserName, updateUserInfo } from '../redux/userSlice'; // Импортируем updateUserInfo
 import '../css/main.css';
 import argentBankLogo from '../img/argentBankLogo.png';
 import UserInfo from '../redux/userInfo'; // Импортируем UserInfo
@@ -10,54 +11,36 @@ const EditName = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userInfo = useSelector((state) => state.user.userInfo);
+  const token = useSelector((state) => state.user.token);
 
   const [userName, setUserName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('userInfo'));
-    if (!userData) {
-      navigate('/sign-in');
-    } else {
-      dispatch(setUserInfo(userData));
-    }
-  }, [dispatch, navigate]);
-
-  useEffect(() => {
     if (userInfo) {
       setUserName(userInfo.userName || '');
       setFirstName(userInfo.firstName || '');
       setLastName(userInfo.lastName || '');
+    } else {
+      navigate('/sign-in');
     }
-  }, [userInfo]);
+  }, [userInfo, navigate]);
 
   const handleSave = async (e) => {
     e.preventDefault();
-    const updatedUserInfo = {
-      ...userInfo,
-      userName,
-      firstName,
-      lastName,
-    };
-
+    
     try {
-      const response = await fetch('http://localhost:3001/api/v1/user/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(updatedUserInfo),
-      });
+      const updatedUserInfo = {
+        userName,
+        firstName,
+        lastName,
+      };
 
-      if (!response.ok) {
-        throw new Error('Ошибка при обновлении информации о пользователе');
-      }
+      await dispatch(updateUserName({ token, newUserName: userName })).unwrap();
 
-      const data = await response.json();
-      dispatch(updateName(data)); 
-      localStorage.setItem('userInfo', JSON.stringify(data)); 
+      // Обновляем состояние пользователя
+      dispatch(updateUserInfo(updatedUserInfo));
 
       alert("Данные успешно сохранены!");
       navigate('/user');
@@ -102,7 +85,8 @@ const EditName = () => {
                 type="text"
                 id="firstName"
                 value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                readOnly // Делаем поле только для чтения
+                className="readonly-input" // Добавляем класс для стилизации
               />
             </div>
             <div className="input-wrapper">
@@ -111,7 +95,8 @@ const EditName = () => {
                 type="text"
                 id="lastName"
                 value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                readOnly // Делаем поле только для чтения
+                className="readonly-input" // Добавляем класс для стилизации
               />
             </div>
             <button type="submit" className="save-button">Save</button>
@@ -124,13 +109,7 @@ const EditName = () => {
       </footer>
     </div>
   );
+  
 };
 
 export default EditName;
-
-
-
-
-
-
-
