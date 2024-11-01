@@ -1,31 +1,31 @@
-// redux/store.js
-
 import { configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import userReducer from './userSlice'; // Убедитесь, что путь верный
+import userReducer from './userSlice';
 
-// Настройки для redux-persist
+// Configuration pour redux-persist
 const persistConfig = {
-  key: 'root',
-  storage,
+  key: 'root', // Clé de base pour le stockage persistant
+  storage,     // Type de stockage utilisé
 };
 
 const persistedReducer = persistReducer(persistConfig, userReducer);
 
-// Создаем Redux store
+// Création du store Redux
 export const store = configureStore({
   reducer: {
-    user: persistedReducer, // Используем редьюсер с persist
+    user: persistedReducer, // Utilisation du reducer persistant
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // Отключаем проверку сериализуемости
+      serializableCheck: false, // Désactivation de la vérification de la sérialisation
     }),
 });
 
-// Создаем persistor для сохранения состояния
+// Création du persistor pour la sauvegarde de l'état
 export const persistor = persistStore(store);
+
+
 
 
 

@@ -2,33 +2,34 @@ const jwt = require('jsonwebtoken');
 
 module.exports.validateToken = (req, res, next) => {
   let response = {
-    status: 401, // Устанавливаем статус по умолчанию для ошибок
-    message: 'Unauthorized' // Общее сообщение об ошибке
+    status: 401, // Définition du statut par défaut pour les erreurs
+    message: 'Non autorisé' // Message d'erreur général
   };
 
   try {
-    // Проверяем наличие заголовка авторизации
+    // Vérification de la présence de l'en-tête d'autorisation
     if (!req.headers.authorization) {
-      throw new Error('Token is missing from header');
+      throw new Error('Le jeton est manquant dans l\'en-tête');
     }
 
-    // Извлекаем токен из заголовка
-    const userToken = req.headers.authorization.split('Bearer ')[1].trim(); // Исправлено: добавлен пробел после 'Bearer'
-    
-    // Проверяем токен
+    // Extraction du jeton de l'en-tête
+    const userToken = req.headers.authorization.split('Bearer ')[1].trim(); // Ajout d'un espace après 'Bearer'
+
+    // Vérification du jeton
     const decodedToken = jwt.verify(
       userToken,
-      process.env.SECRET_KEY || 'default-secret-key'
+      process.env.SECRET_KEY || 'clé-secrète-par-défaut'
     );
 
-    // При успешной валидации токена, сохраняем информацию о пользователе в объекте запроса
-    req.user = decodedToken; // Сохраняем декодированный токен для дальнейшего использования
-    return next(); // Переходим к следующему middleware
+    // En cas de validation réussie du jeton, on sauvegarde les informations utilisateur dans l'objet requête
+    req.user = decodedToken; // Sauvegarde du jeton décodé pour un usage ultérieur
+    return next(); // Passage au middleware suivant
   } catch (error) {
-    console.error('Error in tokenValidation.js', error);
-    response.message = error.message; // Устанавливаем сообщение об ошибке из исключения
+    console.error('Erreur dans tokenValidation.js', error);
+    response.message = error.message; // Définition du message d'erreur issu de l'exception
   }
 
-  return res.status(response.status).send(response); // Отправляем ответ с ошибкой
+  return res.status(response.status).send(response); // Envoi de la réponse avec l'erreur
 };
+
 

@@ -16,7 +16,7 @@ const transactionSchema = new mongoose.Schema({
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Ссылка на модель User
+    ref: 'User', 
     required: true,
   },
 });

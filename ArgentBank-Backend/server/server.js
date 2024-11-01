@@ -1,43 +1,44 @@
-// Основной файл сервера (server.js)
+// Fichier principal du serveur (server.js)
 const express = require('express');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const yaml = require('yamljs');
-const swaggerDocs = yaml.load('./swagger.yaml'); // Загрузка Swagger документа
-const dbConnection = require('./database/connection'); // Подключаем модуль для подключения к базе данных
+const swaggerDocs = yaml.load('./swagger.yaml'); // Chargement du document Swagger
+const dbConnection = require('./database/connection'); // Module de connexion à la base de données
 
-// Не требуется загрузка переменных окружения, так как мы убрали использование DB_URI
-// require('dotenv').config();  // Удалено
+// Pas besoin de charger les variables d'environnement, car nous avons supprimé l'utilisation de DB_URI
+// require('dotenv').config();  // Supprimé
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Подключение к базе данных
-dbConnection();  // Подключение к базе данных без использования DB_URI
+// Connexion à la base de données
+dbConnection();  // Connexion à la base de données sans utilisation de DB_URI
 
-// Обработка проблем CORS
+// Gestion des problèmes de CORS
 app.use(cors());
 
-// Middleware для запросов
+// Middleware pour les requêtes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Обработка пользовательских маршрутов
-app.use('/api/v1/user', require('./routes/userRoutes')); // Оставляем маршруты для пользователя
+// Gestion des routes utilisateur
+app.use('/api/v1/user', require('./routes/userRoutes')); // Routes utilisateur
 
-// API Документация
+// Documentation API
 if (process.env.NODE_ENV !== 'production') {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs)); // Настройка Swagger UI
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs)); // Configuration de Swagger UI
 }
 
 app.get('/', (req, res) => {
-  res.send('Hello from my Express server v2!');
+  res.send('Bonjour depuis mon serveur Express v2!');
 });
 
-// Запуск сервера
+// Démarrage du serveur
 app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
+  console.log(`Serveur en écoute sur http://localhost:${PORT}`);
 });
+
 
 
 

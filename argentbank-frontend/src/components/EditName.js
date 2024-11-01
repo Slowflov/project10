@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { updateUserName, updateUserInfo } from '../redux/userSlice'; // Импортируем updateUserInfo
+import { updateUserName, updateUserInfo } from '../redux/userSlice';
 import '../css/main.css';
 import argentBankLogo from '../img/argentBankLogo.png';
-import UserInfo from '../redux/userInfo'; // Импортируем UserInfo
+import UserInfo from '../redux/userInfo';
 
 const EditName = () => {
   const dispatch = useDispatch();
@@ -39,10 +39,10 @@ const EditName = () => {
 
       await dispatch(updateUserName({ token, newUserName: userName })).unwrap();
 
-      // Обновляем состояние пользователя
+      // Mettre à jour l'état de l'utilisateur
       dispatch(updateUserInfo(updatedUserInfo));
 
-      alert("Данные успешно сохранены!");
+      alert("Les données sont enregistrées avec succès!");
       navigate('/user');
     } catch (error) {
       alert(error.message);
@@ -61,7 +61,7 @@ const EditName = () => {
           <h1 className="sr-only">Argent Bank</h1>
         </a>
         <div>
-          <UserInfo /> {/* Компонент для отображения информации о пользователе и кнопки выхода */}
+          <UserInfo /> 
         </div>
       </nav>
       <main className="main bg-dark">
@@ -85,8 +85,8 @@ const EditName = () => {
                 type="text"
                 id="firstName"
                 value={firstName}
-                readOnly // Делаем поле только для чтения
-                className="readonly-input" // Добавляем класс для стилизации
+                readOnly 
+                className="readonly-input" 
               />
             </div>
             <div className="input-wrapper">
@@ -95,8 +95,8 @@ const EditName = () => {
                 type="text"
                 id="lastName"
                 value={lastName}
-                readOnly // Делаем поле только для чтения
-                className="readonly-input" // Добавляем класс для стилизации
+                readOnly 
+                className="readonly-input"
               />
             </div>
             <button type="submit" className="save-button">Save</button>
